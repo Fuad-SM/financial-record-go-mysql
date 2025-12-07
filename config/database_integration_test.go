@@ -18,11 +18,9 @@ func shouldRunDBTests() bool {
 }
 
 func loadConfigForTest(t *testing.T) {
-    // test runs in package folder; app.conf.json is in parent directory
-    viper.SetConfigFile("../app.conf.json")
-    if err := viper.ReadInConfig(); err != nil {
-        t.Fatalf("gagal membaca konfigurasi app.conf.json: %v", err)
-    }
+    // Initialize configuration: this will load .env (if present) and
+    // optionally app.conf.json. Environment variables override file.
+    InitConfiguration()
 }
 
 func openDBFromViper(t *testing.T) *sql.DB {
