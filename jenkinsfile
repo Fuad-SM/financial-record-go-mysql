@@ -1,0 +1,43 @@
+pipeline {
+    agent { label 'dev' }
+
+    stages {
+        stage('Pull SCM') {
+            steps {
+                git branch: 'main', url: 'https://github.com/Fuad-SM/financial-record-go-mysql.git'
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                sh'''
+                cd app
+                go mod tidy
+                '''
+            }
+        }
+        
+        stage('Code Review') {
+            steps {
+                sh'''
+                cd app
+                sonar-scanner   -Dsonar.projectKey=app-fuu   -Dsonar.sources=.   -Dsonar.host.url=http://172.23.10.15:9000   -Dsonar.token=sqp_d7e971ff6014570eefd097ab08e4693a2f2a5738
+                '''
+            }
+        }
+        
+        stage('Deploy') {
+            steps {
+                sh'''
+                docker compose up --build -d
+                '''
+            }
+        }
+        
+        stage('Backup') {
+            steps {
+                 sh 'docker compose push' 
+            }
+        }
+    }
+}
